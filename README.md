@@ -1,1 +1,6 @@
-This is a cloud based DevOps platform meant for testing, deplying and version control, basically a lightweight version of GitLab.
+Self-hosted GitLab on AWS with Terraform & Ansible
+
+This is a lightweight version of GitLab with a focus on:
+- Testing 
+- Deploying
+- Version control
