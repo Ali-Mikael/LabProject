@@ -1,56 +1,69 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-1"
-}
-
-
-
 # Networking
-# Note: us-east-1 has 6 AZs (a-f) to choose from
-
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-  
+  cidr_block       = var.main_cidr
   instance_tenancy = "default"
 
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
   tags = {
-    Name = "main"
+    Name = "main-vpc"
   }
 }
 
-resource "aws_internet_gateway" "gw" {
+
+# The Internet Gateway
+resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "Main VPC IGW"
+    Name = "main-vpc-IGW"
   }
-  
 }
 
+
+# EIP for NAT
+resource "aws_eip" "nat" {
+  domain = "vpc"
+
+  tags = {
+    Name = "main-NAT-EIP"
+  }
+}
+# NAT gateway
+resource "aws_nat_gateway" "NAT_GW" {
+  subnet_id     = aws_subnet.public["main"].id
+  allocation_id = aws_eip.nat.id
+  depends_on    = [aws_internet_gateway.igw]
+
+  tags = {
+    Name = "main-NAT-gw"
+  }
+}
+
+# Public subnet(s)
 resource "aws_subnet" "public" {
-  vpc_id = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  for_each = var.public_subnets
+
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = each.value.cidr
+  availability_zone       = each.value.az
+  map_public_ip_on_launch = true
 
   tags = {
-    Name = "public"
+    Name = each.value.name
   }
 }
 
+# Private subnets
 resource "aws_subnet" "private_subnets" {
-  count = length(var.private_subnet_cidrs)
-  vpc_id = aws_vpc.main.id
-  cidr_block = element(var.private_subnet_cidrs, count.index)
+  for_each = var.private_subnets
+
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
 
   tags = {
-    Name = "Private Subnet ${count.index +1}"
+    Name = each.value.name
   }
 }
