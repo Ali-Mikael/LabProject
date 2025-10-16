@@ -1,4 +1,8 @@
+# ----------
 # Networking
+# ----------
+
+# VPC
 resource "aws_vpc" "main" {
   cidr_block       = var.main_cidr
   instance_tenancy = "default"
@@ -11,7 +15,6 @@ resource "aws_vpc" "main" {
   }
 }
 
-
 # The Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
@@ -21,7 +24,6 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-
 # EIP for NAT
 resource "aws_eip" "nat" {
   domain = "vpc"
@@ -30,6 +32,7 @@ resource "aws_eip" "nat" {
     Name = "main-NAT-EIP"
   }
 }
+
 # NAT gateway
 resource "aws_nat_gateway" "NAT_GW" {
   subnet_id     = aws_subnet.public["main"].id
@@ -67,3 +70,9 @@ resource "aws_subnet" "private_subnets" {
     Name = each.value.name
   }
 }
+
+
+# ---------------
+# Security Groups
+# ---------------
+
