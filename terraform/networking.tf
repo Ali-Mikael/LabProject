@@ -24,6 +24,7 @@ resource "aws_internet_gateway" "igw" {
   })
 }
 
+
 # EIP for NAT
 resource "aws_eip" "nat" {
   domain = "vpc"
@@ -35,7 +36,7 @@ resource "aws_eip" "nat" {
 
 # NAT gateway
 resource "aws_nat_gateway" "NAT_GW" {
-  subnet_id     = aws_subnet.public["main"].id
+  subnet_id     = aws_subnet.public_subnets["main"].id
   allocation_id = aws_eip.nat.id
   depends_on    = [aws_internet_gateway.igw]
 
@@ -44,8 +45,10 @@ resource "aws_nat_gateway" "NAT_GW" {
   })
 }
 
+
+
 # Public subnet(s)
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_subnets" {
   for_each = var.public_subnets
 
   vpc_id                  = aws_vpc.main.id
