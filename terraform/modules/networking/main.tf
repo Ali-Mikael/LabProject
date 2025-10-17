@@ -1,8 +1,3 @@
-# ----------
-# Networking
-# ----------
-
-# VPC
 resource "aws_vpc" "main" {
   cidr_block       = var.main_cidr
   instance_tenancy = "default"
@@ -70,9 +65,3 @@ resource "aws_subnet" "private_subnets" {
     Name = each.value.name
   }
 }
-
-
-# ---------------
-# Security Groups
-# ---------------
-
