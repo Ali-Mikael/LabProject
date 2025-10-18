@@ -1,6 +1,7 @@
-Self-hosted GitLab on AWS with Terraform & Ansible
+## What is?
+Self-hosted **CI/CD platform** in the AWS cloud, built and managed using *Terraform*.  
 
-This is a lightweight version of GitLab with a focus on:
-- Testing 
-- Deploying
-- Version control
+## How to use?
+Copy repo > Navigate to `/terraform` dir > Initialize `$ terraform init` > Create infrastructure `$ terraform apply` > **Enjoy!**   
+<br> 
+note: Tweak the configs to suit your needs (providers, networking etc..).
