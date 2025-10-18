@@ -1,102 +1,60 @@
-# --------
 # NACLs
-# --------
-
-# Define NACL
-resource "aws_network_acl" "public" {
+# -----
+resource "aws_network_acl" "nacl" {
   vpc_id = aws_vpc.main.id
 
-  tags = merge(local.common_tags, {
-    Name = "Public-Subnet-NACL"
-  })
-}
+  for_each = {
+    public  = "Public-Subnet-NACL"
+    private = "Private-Subnet-NACL"
+  }
 
-resource "aws_network_acl" "private" {
-  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = each.value
+  }
 
-  tags = merge(local.common_tags, {
-    Name = "Private-Subnet-NACL"
-  })
-}
+  # Create ingress and egress rules dynamically for each NACL.
+  # The [each.key] ensures rules are matched to the correct NACL defined in locals.tf.
+  dynamic "ingress" {
+    for_each = lookup(local.nacl_rules[each.key], "ingress", [])
 
+    content {
+      rule_no    = ingress.value.rule_no
+      protocol   = ingress.value.protocol
+      action     = ingress.value.action
+      from_port  = ingress.value.from_port
+      to_port    = ingress.value.to_port
+      cidr_block = ingress.value.cidr_block
+    }
+  }
 
-# ---------------------------
-# NACL rules
-# (check locals.tf for config)
-# ---------------------------
+  dynamic "egress" {
+    for_each = lookup(local.nacl_rules[each.key], "egress", [])
 
-# Public NACL rule creation
-resource "aws_network_acl_rule" "public_ingress" {
-  for_each = { for rule in local.nacl_rules.public.ingress : rule.rule_no => rule }
-
-  
-  network_acl_id = aws_network_acl.public.id
-  rule_number    = each.value.rule_no
-  egress         = false
-  protocol       = each.value.protocol
-  rule_action    = each.value.rule_action
-  cidr_block     = each.value.cidr_block
-  from_port      = each.value.from_port
-  to_port        = each.value.to_port
-}
-
-
-resource "aws_network_acl_rule" "public_egress" {
-  for_each = { for rule in local.nacl_rules.public.egress : rule.rule_no => rule }
-
-  network_acl_id = aws_network_acl.public.id
-  rule_number    = each.value.rule_no
-  egress         = true
-  protocol       = each.value.protocol
-  rule_action    = each.value.rule_action
-  cidr_block     = each.value.cidr_block
-  from_port      = each.value.from_port
-  to_port        = each.value.to_port
+    content {
+      rule_no    = egress.value.rule_no
+      protocol   = egress.value.protocol
+      action     = egress.value.action
+      from_port  = egress.value.from_port
+      to_port    = egress.value.to_port
+      cidr_block = egress.value.cidr_block
+    }
+  }
 }
 
 
-# Private NACL rule creation
-resource "aws_network_acl_rule" "private_ingress" {
-  for_each = { for rule in local.nacl_rules.private.ingress : rule.rule_no => rule }
+# NACL Associations
+# -----------------
 
-  network_acl_id = aws_network_acl.private.id
-  rule_number    = each.value.rule_no
-  egress         = false
-  protocol       = each.value.protocol
-  rule_action    = each.value.rule_action
-  cidr_block     = each.value.cidr_block
-  from_port      = each.value.from_port
-  to_port        = each.value.to_port
-
-}
-
-resource "aws_network_acl_rule" "private_egress" {
-  for_each = { for rule in local.nacl_rules.private.egress : rule.rule_no => rule }
-
-  network_acl_id = aws_network_acl.private.id
-  rule_number    = each.value.rule_no
-  egress         = true
-  protocol       = each.value.protocol
-  rule_action    = each.value.rule_action
-  cidr_block     = each.value.cidr_block
-  from_port      = each.value.from_port
-  to_port        = each.value.to_port
-}
-
-
-
-# Associations
-resource "aws_network_acl_association" "public_subnet" {
+resource "aws_network_acl_association" "public" {
   for_each = aws_subnet.public_subnets
 
   subnet_id      = each.value.id
-  network_acl_id = aws_network_acl.public.id
+  network_acl_id = aws_network_acl.nacl["public"].id
 }
 
-resource "aws_network_acl_association" "private_subnet" {
+resource "aws_network_acl_association" "private" {
   for_each = aws_subnet.private_subnets
 
   subnet_id      = each.value.id
-  network_acl_id = aws_network_acl.private.id
+  network_acl_id = aws_network_acl.nacl["private"].id
 }
-
