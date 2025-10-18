@@ -1,7 +1,6 @@
 locals {
 
-
-  # Ports to be used in NACL and SGs etc.
+  # Port values to be used in NACLs & SGs etc..
   port = {
     http            = 80
     https           = 443
@@ -14,6 +13,7 @@ locals {
   # NACL rules
   nacl_rules = {
 
+    # Public subnet NACL rules
     public = {
       ingress = [
         { rule_no = 100, description = "Allow HTTP into the public subnet", protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.http, to_port = local.port.http },
@@ -25,6 +25,7 @@ locals {
       ]
     }
 
+    # Private subnets NACL rules
     private = {
       ingress = [
         { rule_no = 100, description = "Allow HTTP from public subnet", protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.http, to_port = local.port.http },
