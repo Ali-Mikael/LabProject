@@ -1,10 +1,5 @@
 locals {
 
-  common_tags = {
-    Project   = "CI/CD-platform"
-    Creator   = "Ali-G"
-    ManagedBy = "Terraform"
-  }
 
   # Ports to be used in NACL and SGs etc.
   port = {
@@ -21,24 +16,23 @@ locals {
 
     public = {
       ingress = [
-        { rule_no = 100, protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.http, to_port = local.port.http, description = "Allow HTTP" },
-        { rule_no = 110, protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.https, to_port = local.port.https, description = "Allow HTTPS" },
-        { rule_no = 120, protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.ssh, to_port = local.port.ssh, description = "Allow SSH" }
+        { rule_no = 100, description = "Allow HTTP into the public subnet", protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.http, to_port = local.port.http },
+        { rule_no = 110, description = "Allow HTTPS into the public subnet" ,protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.https, to_port = local.port.https },
+        { rule_no = 120, description = "Allow SSH into public subnet", protocol = "tcp", rule_action = "allow", cidr_block = "0.0.0.0/0", from_port = local.port.ssh, to_port = local.port.ssh }
       ]
       egress = [
-        { rule_no = 100, protocol = "-1", rule_action = "allow", cidr_block = var.main_cidr, from_port = 0, to_port = 0, description = "Allow all outbound" }
+        { rule_no = 100,description = "Allow all outbound", protocol = "-1", rule_action = "allow", cidr_block = var.main_cidr, from_port = 0, to_port = 0 }
       ]
     }
 
     private = {
       ingress = [
-        { rule_no = 100, protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.http, to_port = local.port.http, description = "Allow HTTP from public subnet" },
-        { rule_no = 110, protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.https, to_port = local.port.https, description = "Allow HTTS from public subnet" },
-        { rule_no = 120, protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.http, to_port = local.port.http, description = "Allow SSH from public subnet" },
+        { rule_no = 100, description = "Allow HTTP from public subnet", protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.http, to_port = local.port.http },
+        { rule_no = 110, description = "Allow HTTPS from public subnet", protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.https, to_port = local.port.https },
+        { rule_no = 120, description = "Allow SSH from public subnet", protocol = "tcp", rule_action = "allow", cidr_block = var.public_subnets["main"].cidr, from_port = local.port.http, to_port = local.port.http }
       ]
-
       egress = [
-        { rule_no = 100, protocol = "-1", rule_action = "allow", cidr_block = var.main_cidr, from_port = 0, to_port = 0, description = "Allow all outgoing traffic from private subnets" }
+        { rule_no = 100, description = "Allow all outgoing traffic from private subnets", protocol = "-1", rule_action = "allow", cidr_block = var.main_cidr, from_port = 0, to_port = 0 }
       ]
     }
     
