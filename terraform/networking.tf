@@ -10,18 +10,18 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "main-vpc"
-  })
+  }
 }
 
 # The Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
-  tags = merge(local.common_tags,{
+  tags = {
     Name = "main-vpc-IGW"
-  })
+  }
 }
 
 
@@ -40,9 +40,9 @@ resource "aws_nat_gateway" "NAT_GW" {
   allocation_id = aws_eip.nat.id
   depends_on    = [aws_internet_gateway.igw]
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "main-NAT-gw"
-  })
+  }
 }
 
 
@@ -56,9 +56,9 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = each.value.az
   map_public_ip_on_launch = true
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = each.value.name
-  })
+  }
 }
 
 # Private subnets
@@ -69,7 +69,7 @@ resource "aws_subnet" "private_subnets" {
   cidr_block        = each.value.cidr
   availability_zone = each.value.az
 
-  tags = merge(local.common_tags,{
+  tags = {
     Name = each.value.name
-  })
+  }
 }
