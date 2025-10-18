@@ -16,9 +16,7 @@ variable "public_subnets" {
   }
 }
 
-
 variable "private_subnets" {
-
   description = "Private subnet config"
   type = map(object({
     name = string
