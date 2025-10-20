@@ -4,8 +4,8 @@ resource "aws_network_acl" "nacl" {
   vpc_id = aws_vpc.main.id
 
   for_each = {
-    public  = "Public-Subnet-NACL"
-    private = "Private-Subnet-NACL"
+    public  = "public-Subnet-nacl"
+    private = "private-Subnet-nacl"
   }
 
   tags = {
