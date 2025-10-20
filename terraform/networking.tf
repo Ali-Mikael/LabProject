@@ -20,7 +20,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "main-vpc-IGW"
+    Name = "main-vpc-igw"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_eip" "nat" {
   domain = "vpc"
 
   tags = {
-    Name = "main-NAT-EIP"
+    Name = "main-nat-eip"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_nat_gateway" "NAT_GW" {
   depends_on    = [aws_internet_gateway.igw]
 
   tags = {
-    Name = "main-NAT-gw"
+    Name = "main-nat-gw"
   }
 }
 
@@ -61,7 +61,7 @@ resource "aws_subnet" "public_subnets" {
   }
 }
 
-# Private subnets
+# Private subnet(s)
 resource "aws_subnet" "private_subnets" {
   for_each = var.private_subnets
 
