@@ -38,8 +38,8 @@ variable "private_subnets" {
 
 
 variable "ami_id" {
-  description = "Default Ubuntu AMI to use with instances"
-  default = "ami-0360c520857e3138f"
+  description = "Ubuntu AMI for instances"
+  default = data.aws_ami.ubuntu.id
 }
 
 variable "instance_type" {
