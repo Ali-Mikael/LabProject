@@ -1,3 +1,9 @@
+# Region
+variable "aws_region" {
+  type = string
+  default = "us-east-1"
+}
+
 # Main cidr_block for the VPC
 variable "main_cidr" {
   type    = string
