@@ -43,11 +43,6 @@ variable "private_subnets" {
 }
 
 
-variable "ami_id" {
-  description = "Ubuntu AMI for instances"
-  default = data.aws_ami.ubuntu.id
-}
-
 variable "instance_type" {
   default = "t2.micro"
 }
