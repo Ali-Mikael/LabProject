@@ -62,7 +62,7 @@ resource "aws_network_acl_association" "private" {
 # Security Groups
 # ---------------
 
-# Creating SGs dynamically. Config in locals.tf/ security_groups{}
+# Creating SGs dynamically. Input values stored in /locals.tf > security_groups{}
 resource "aws_security_group" "sg" {
   for_each = local.security_groups
 
@@ -77,6 +77,8 @@ resource "aws_security_group" "sg" {
 
 # Creating & attaching SG rules dynamically
 # -----------------------------------------
+
+# Ingress rules
 resource "aws_vpc_security_group_ingress_rule" "ingress_rule" {
   # Check locals.tf for flattening of rules 
   for_each = {
@@ -92,6 +94,7 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_rule" {
   depends_on        = [aws_security_group.sg]
 }
 
+# Egress rules
 resource "aws_vpc_security_group_egress_rule" "egress_rule" {
   # Check locals.tf for flattening of rules 
   for_each = {
@@ -100,7 +103,7 @@ resource "aws_vpc_security_group_egress_rule" "egress_rule" {
   }
 
   security_group_id = aws_security_group.sg[each.value.sg_name].id
-  # If all protocols are specified, you cannot declare ports per AWS rules
+  # If all protocols are specified, you cannot declare ports -per AWS rules
   from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
   ip_protocol       = each.value.ip_protocol
